@@ -1,0 +1,27 @@
+{
+  "name": "ClarityLearn-2.0-tests",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:unit": "vitest run tests/unit",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next build && next export",
+    "deploy:test": "npm run build && echo 'Ready for Stacks Ascent deployment'",
+    "deploy:prod": "npm run build && echo 'Production build complete'"    
+  },
+  "devDependencies": {
+    "@hirosystems/clarinet-sdk": "^2.8.0",
+    "@stacks/transactions": "^6.13.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.12",
+    "vitest-environment-clarinet": "^2.0.0"
+  }
+}

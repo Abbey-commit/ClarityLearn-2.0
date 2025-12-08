@@ -1,0 +1,52 @@
+[project]
+name = "ClarityLearn-2.0"
+requirements = []
+telemetry = true
+cache_dir = ".cache"
+boot_contracts = []
+
+[project.costs]
+large_contract = 100_000
+mainnet_cost_analysis = false
+
+[repl]
+costs_version = 3
+parser_version = 2
+
+[repl.analysis]
+passes = ["check_checker"]
+
+[repl.analysis.check_checker]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false
+
+# =============================================================================
+# CONTRACT CONFIGURATION - ALL 3 CONTRACTS
+# =============================================================================
+
+# Contract 1: Rewards & Governance (Multi-sig wallet v3 - UPDATED)
+[contracts.clarity-learn-rewards-v3]
+path = "contracts/clarity-learn-rewards.clar"
+clarity_version = 2
+epoch = 2.4
+
+# Contract 2: Staking with Time-locks (v3 - UPDATED)
+[contracts.clarity-learn-staking-v3]
+path = "contracts/clarity-learn-staking.clar"
+clarity_version = 2
+epoch = 2.4
+
+# Contract 3: Core Dictionary (Terms, Voting, Categories - Updated core contract)
+[contracts.clarity-learn-core-v3] 
+path = "contracts/clarity-learn-core.clar"
+clarity_version = 2
+epoch = 2.4
+
+# =============================================================================
+# DEPLOYMENT ORDER (Important for contract dependencies)
+# =============================================================================
+# 1. clarity-learn-rewards-v2 (independent)
+# 2. clarity-learn-core-v2 (independent) 
+# 3. clarity-learn-staking-v2 (may reference core for term verification)

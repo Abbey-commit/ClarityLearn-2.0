@@ -1,0 +1,17 @@
+import { defineConfig } from 'vitest/config';
+import { vitestSetupFilePath, getClarinetVitestsArgv } from '@hirosystems/clarinet-sdk/vitest';
+
+export default defineConfig({
+  test: {
+    environment: 'clarinet',
+    singleThread: true,
+    setupFiles: [vitestSetupFilePath],
+    environmentOptions: {
+      clarinet: {
+        ...getClarinetVitestsArgv(),
+      },
+    },
+    // Include test files from both locations
+    include: ['tests/**/*.test.ts', 'tests/**/*.spec.ts'],
+  },
+});

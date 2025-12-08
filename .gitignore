@@ -1,0 +1,38 @@
+
+**/settings/Mainnet.toml
+**/settings/Testnet.toml
+**/settings/Devnet.toml
+.cache/**
+history.txt
+
+logs
+*.log
+npm-debug.log*
+coverage
+*.info
+costs-reports.json
+node_modules
+
+# Environment variables
+.env.local
+.env.production.local
+.env*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+
+**/ClarityLearn-2.0/docs/week-1-work-doc/TESTNET_ADDRESSES.md
