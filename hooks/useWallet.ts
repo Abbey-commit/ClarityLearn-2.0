@@ -5,6 +5,8 @@
 
 import { useState, useEffect } from 'react';
 import { userSession, connectWallet, disconnectWallet, getUserData } from '@/lib/wallet-config';
+import { useBalance } from './useBalance';
+
 
 interface WalletState {
   isConnected: boolean;
@@ -76,8 +78,11 @@ export const useWallet = () => {
     });
   };
 
+  const { balance } = useBalance(wallet.address);
+
   return {
     ...wallet,
+    balance,
     connect,
     disconnect,
   };

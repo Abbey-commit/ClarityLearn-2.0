@@ -23,6 +23,9 @@ const nextConfig = {
   // For Stacks Ascent platform deployment
   basePath: '',
   trailingSlash: true,
+
+  // Add this line to fix the warning:
+  turbopack: {},
   
   // Webpack configuration
   webpack: (config) => {
@@ -37,3 +40,5 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+
+
