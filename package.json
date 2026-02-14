@@ -13,11 +13,13 @@
     "lint": "next lint",
     "export": "next build && next export",
     "deploy:test": "npm run build && echo 'Ready for Stacks Ascent deployment'",
-    "deploy:prod": "npm run build && echo 'Production build complete'"
+    "deploy:prod": "npm run build && echo 'Production build complete'",
+    "@stacks/network": "2.2.4"
   },
   "devDependencies": {
     "@hirosystems/clarinet-sdk": "^2.8.0",
-    "@stacks/transactions": "^6.13.0",
+    "@playwright/test": "^1.57.0",
+    "@stacks/transactions": "^6.17.0",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "autoprefixer": "^10.4.22",
@@ -28,7 +30,9 @@
     "vitest-environment-clarinet": "^2.0.0"
   },
   "dependencies": {
-    "next": "^16.0.7",
+    "@stacks/connect": "^8.2.3",
+    "@stacks/network": "^7.2.0",
+    "next": "^16.0.8",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "tailwindcss": "^3.4.1"

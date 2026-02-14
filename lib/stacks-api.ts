@@ -1,24 +1,43 @@
-// -----------------------------
-// FILE NAME: lib/stacks-api.ts
-// Location: ClarityLearn-2.0/lib/stacks-api.ts
-// Purpose: Blockchain data fetching utilities
-// -----------------------------
-
 import { STACKS_API_URL, NETWORK } from './wallet-config';
 
 // Fetch STX balance for an address
-export async function fetchSTXBalance(address: string): Promise<number> {
+export async function fetchSTXBalance(address: string, network: string): Promise<number> {
+  console.log('🟢 fetchSTXBalance called with:', { address, network });
+  console.log('🟢 About to fetch from API...');
+  if (!address) {
+    console.log('No address provided to fetchSTXBalance');
+    return 0;
+  }
+  
+  console.log('Fetching balance for:', address);
+  console.log('Using API URL:', STACKS_API_URL);
+  
   try {
-    const response = await fetch(
-      `${STACKS_API_URL}/extended/v1/address/${address}/stx`
-    );
+    const url = `${STACKS_API_URL}/extended/v1/address/${address}/stx`;
+    console.log('Full URL:', url);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    
+    console.log('Response status:', response.status);
     
     if (!response.ok) {
-      throw new Error('Failed to fetch balance');
+      const errorText = await response.text();
+      console.error('API Error:', response.status, errorText);
+      return 0;
     }
     
     const data = await response.json();
-    return parseInt(data.balance) || 0;
+    console.log('Balance data:', data);
+    
+    const balance = parseInt(data.balance) || 0;
+    console.log('Parsed balance:', balance, 'microSTX');
+    
+    return balance;
   } catch (error) {
     console.error('Error fetching STX balance:', error);
     return 0;
@@ -27,9 +46,17 @@ export async function fetchSTXBalance(address: string): Promise<number> {
 
 // Fetch account info (balance, nonce, etc)
 export async function fetchAccountInfo(address: string) {
+  if (!address) return null;
+  
   try {
     const response = await fetch(
-      `${STACKS_API_URL}/v2/accounts/${address}?proof=0`
+      `${STACKS_API_URL}/v2/accounts/${address}?proof=0`,
+      {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      }
     );
     
     if (!response.ok) {

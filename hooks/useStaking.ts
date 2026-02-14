@@ -1,9 +1,3 @@
-// -----------------------------
-// FILE NAME: useStaking.ts
-// Location: ClarityLearn-2.0/hooks/useStaking.ts
-// Purpose: Hook for staking contract interactions
-// -----------------------------
-
 import { useState } from 'react';
 import { createStake, getUserStakes, getStakeDetails, claimStake } from '@/lib/contract-calls';
 import { useWallet } from './useWallet';
@@ -14,24 +8,35 @@ export const useStaking = () => {
   const [isClaimingStake, setIsClaimingStake] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  console.log('🔵 useStaking hook - current address:', address);
+
   // Create a new stake
   const handleCreateStake = async (
     amount: number,
     plan: 'weekly' | 'biweekly' | 'monthly'
   ) => {
+    console.log('🟢 handleCreateStake called with:', { amount, plan, address });
+
     if (!address) {
+      console.error('❌ No address available!');
       setError('Please connect your wallet first');
       return false;
     }
 
+    console.log('🟢 Setting isCreatingStake to true');
     setIsCreatingStake(true);
     setError(null);
 
     try {
+      console.log('🟢 Calling createStake function...');
       await createStake(amount, plan, address);
+      console.log('✅ createStake completed successfully');
       setIsCreatingStake(false);
       return true;
     } catch (err: any) {
+      console.error('❌ Error in createStake:', err);
+      console.error('❌ Error message:', err.message);
+      console.error('❌ Error stack:', err.stack);
       setError(err.message || 'Failed to create stake');
       setIsCreatingStake(false);
       return false;

@@ -1,14 +1,11 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   
-  // Enable static export for easy deployment
-  output: 'export',
-  
   // Image optimization settings
+  // Changed to false for Vercel (Vercel supports image optimization)
   images: {
-    unoptimized: true, // Required for static export
+    unoptimized: false, // Vercel can optimize images
   },
   
   // Environment variables validation
@@ -17,14 +14,11 @@ const nextConfig = {
     NEXT_PUBLIC_STACKS_API: process.env.NEXT_PUBLIC_STACKS_API,
   },
   
-  // Production optimizations
-  swcMinify: true,
-  
-  // For Stacks Ascent platform deployment
+  // For deployment
   basePath: '',
   trailingSlash: true,
 
-  // Add this line to fix the warning:
+  // Turbopack configuration
   turbopack: {},
   
   // Webpack configuration
@@ -40,5 +34,3 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
-
-

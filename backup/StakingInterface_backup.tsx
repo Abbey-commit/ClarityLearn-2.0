@@ -2,7 +2,6 @@
 // FILE NAME: StakingInterface.tsx
 // Location: ClarityLearn-2.0/components/StakingInterface.tsx
 // Purpose: Main staking UI component
-// MINIMAL FIX: Only fixed the balance check bug
 // -----------------------------
 
 'use client';
@@ -24,13 +23,9 @@ export default function StakingInterface() {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const currentPlan = STAKING_PLANS[selectedPlan];
-  // FIXED: Added amountInSTX and FEE_BUFFER
-  const amountInSTX = parseFloat(stakeAmount || '0');
-  const amountInMicroSTX = amountInSTX * 1000000;
-  const FEE_BUFFER = 0.02; // Reserve 0.02 STX for transaction fees
+  const amountInMicroSTX = parseFloat(stakeAmount || '0') * 1000000;
   const isValidAmount = amountInMicroSTX >= currentPlan.minAmount;
-  // FIXED: Compare STX to STX (not STX to microSTX), add fee buffer
-  const hasEnoughBalance = balance >= (amountInSTX + FEE_BUFFER);
+  const hasEnoughBalance = balance >= (amountInSTX + FEE_BUFFER); 
 
   // Calculate potential rewards
   const successReward = amountInMicroSTX * (1 + currentPlan.successBonus);
@@ -260,7 +255,7 @@ export default function StakingInterface() {
               Minimum: {formatSTX(currentPlan.minAmount)} STX
             </span>
             <span className="text-gray-600">
-              Your Balance: {balance.toFixed(6)} STX
+              Your Balance: {formatSTX(balance)} STX
             </span>
           </div>
 
@@ -272,7 +267,7 @@ export default function StakingInterface() {
 
           {!hasEnoughBalance && isValidAmount && (
             <p className="mt-2 text-sm text-red-600">
-              ⚠️ Insufficient balance (need {(amountInSTX + FEE_BUFFER).toFixed(2)} STX including ~0.02 STX fees)
+              ⚠️ Insufficient balance
             </p>
           )}
         </div>

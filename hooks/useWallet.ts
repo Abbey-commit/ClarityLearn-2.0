@@ -1,12 +1,6 @@
-// Location: ClarityLearn-2.0/hooks/useWallet.ts
-// Purpose: React hook for wallet state management
-
-// -----------------------------
-
 import { useState, useEffect } from 'react';
-import { userSession, connectWallet, disconnectWallet, getUserData } from '@/lib/wallet-config';
+import { connectWallet, disconnectWallet, getUserData, checkConnection } from '@/lib/wallet-config';
 import { useBalance } from './useBalance';
-
 
 interface WalletState {
   isConnected: boolean;
@@ -27,47 +21,76 @@ export const useWallet = () => {
 
   // Check if wallet is already connected on mount
   useEffect(() => {
-    const checkConnection = () => {
-      if (userSession.isUserSignedIn()) {
+    const checkWalletConnection = () => {
+      console.log('🔵 Checking wallet connection on mount...');
+      
+      if (checkConnection()) {
+        console.log('✅ Wallet is connected (from checkConnection)');
         const userData = getUserData();
-        const address = userData?.profile?.stxAddress?.testnet || userData?.profile?.stxAddress?.mainnet || '';
+        console.log('📦 getUserData returned:', userData);
+        
+        const address = 
+          userData?.profile?.stxAddress?.testnet ||
+          userData?.profile?.stxAddress?.mainnet ||
+          '';
+        
+        console.log('📍 Extracted address:', address);
         
         setWallet({
-          isConnected: true,
-          address,
-          balance: 0, // We'll fetch this in Step 3
-          isLoading: false,
-          userData,
-        });
-      } else {
-        setWallet(prev => ({ ...prev, isLoading: false }));
-      }
-    };
-
-    checkConnection();
-  }, []);
-
-  // Connect wallet handler
-  const connect = () => {
-    connectWallet(
-      (userData) => {
-        const address = userData?.profile?.stxAddress?.testnet || userData?.profile?.stxAddress?.mainnet || '';
-        setWallet({
-          isConnected: true,
+          isConnected: true, // Set to true if we have stored data
           address,
           balance: 0,
           isLoading: false,
           userData,
         });
-      },
-      () => {
-        console.log('Connection cancelled');
+      } else {
+        console.log('❌ No wallet connected');
+        setWallet(prev => ({ ...prev, isLoading: false }));
       }
-    );
+    };
+
+    checkWalletConnection();
+  }, []);
+
+  // Connect wallet handler
+  const connect = async () => {
+    console.log('🔵 Connect button clicked');
+    try {
+      await connectWallet(
+        (userData) => {
+          console.log('✅ Wallet connected successfully');
+          console.log('📦 Connection userData:', userData);
+          
+          const address = 
+            userData?.profile?.stxAddress?.testnet ||
+            userData?.profile?.stxAddress?.mainnet ||
+            '';
+          
+          console.log('📍 Extracted address:', address);
+          
+          // Update wallet state with connection
+          setWallet({
+            isConnected: true, // CRITICAL: Set this to true
+            address,
+            balance: 0,
+            isLoading: false,
+            userData,
+          });
+        },
+        () => {
+          console.log('⚠️ Connection cancelled by user');
+          setWallet(prev => ({ ...prev, isLoading: false }));
+        }
+      );
+    } catch (error) {
+      console.error('❌ Connection error:', error);
+      setWallet(prev => ({ ...prev, isLoading: false }));
+    }
   };
 
   // Disconnect wallet handler
   const disconnect = () => {
+    console.log('🔵 Disconnecting wallet');
     disconnectWallet();
     setWallet({
       isConnected: false,
@@ -80,9 +103,16 @@ export const useWallet = () => {
 
   const { balance } = useBalance(wallet.address);
 
+  // Debug log to track state
+  console.log('🔍 useWallet current state:', {
+    isConnected: wallet.isConnected,
+    address: wallet.address,
+    balance: balance,
+  });
+
   return {
     ...wallet,
-    balance,
+    balance, // Use balance from useBalance hook
     connect,
     disconnect,
   };

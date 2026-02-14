@@ -1,29 +1,13 @@
-// -----------------------------
-// FILE NAME: contract-calls.ts
-// Location: ClarityLearn-2.0/lib/contract-calls.ts
-// Purpose: Smart contract interaction functions
-// -----------------------------
-
 import {
-  makeContractCall,
-  broadcastTransaction,
   AnchorMode,
   PostConditionMode,
   stringAsciiCV,
   uintCV,
   principalCV,
   standardPrincipalCV,
-  listCV,
-  bufferCV,
 } from '@stacks/transactions';
-import { StacksTestnet, StacksMainnet } from '@stacks/network';
-import { CONTRACTS, NETWORK } from './wallet-config';
 import { openContractCall } from '@stacks/connect';
-
-// Get network instance
-const getNetwork = () => {
-  return NETWORK === 'mainnet' ? new StacksMainnet() : new StacksTestnet();
-};
+import { CONTRACTS, NETWORK, STACKS_API_URL } from './wallet-config';
 
 // Parse contract address (ST1PKQ...WF7H5.contract-name)
 const parseContractId = (contractId: string) => {
@@ -32,8 +16,65 @@ const parseContractId = (contractId: string) => {
 };
 
 // ===========================================
-// CORE CONTRACT FUNCTIONS (Dictionary)
+// STAKING CONTRACT FUNCTIONS
 // ===========================================
+
+// Create a new stake
+export async function createStake(
+  amount: number,
+  stakingPlan: 'weekly' | 'biweekly' | 'monthly',
+  userAddress: string
+) {
+  console.log('🔵 Creating stake with:', { amount, stakingPlan, userAddress });
+  
+  const { address, name } = parseContractId(CONTRACTS.staking);
+  
+  console.log('🔵 Contract details:', { address, name });
+  console.log('🔵 Full contract ID:', CONTRACTS.staking);
+  console.log('🔵 User address:', userAddress);
+  console.log('🔵 Network:', NETWORK);
+  
+  const txOptions = {
+    contractAddress: address,
+    contractName: name,
+    functionName: 'create-stake',
+    functionArgs: [
+      uintCV(amount),
+      stringAsciiCV(stakingPlan),
+    ],
+    // CRITICAL: Pass network as simple string for v8 compatibility
+    network: NETWORK,
+    anchorMode: AnchorMode.Any,
+    postConditionMode: PostConditionMode.Allow,
+    appDetails: {
+      name: 'ClarityLearn 2.0',
+      icon: window.location.origin + '/logo.png',
+    },
+    onFinish: (data: any) => {
+      console.log('✅ Stake transaction submitted!');
+      console.log('📦 Transaction ID:', data.txId);
+      alert(`Stake created! Transaction ID: ${data.txId}`);
+      return data;
+    },
+    onCancel: () => {
+      console.log('⚠️ Transaction cancelled by user');
+    },
+  };
+  
+  console.log('🔵 Transaction options:', {
+    ...txOptions,
+    functionArgs: '[CV values]',
+    network: NETWORK,
+  });
+  
+  try {
+    await openContractCall(txOptions);
+    console.log('✅ openContractCall executed');
+  } catch (error) {
+    console.error('❌ Error in openContractCall:', error);
+    throw error;
+  }
+}
 
 // Store a new term in the dictionary
 export async function storeTerm(
@@ -53,9 +94,7 @@ export async function storeTerm(
       stringAsciiCV(definition),
       stringAsciiCV(category),
     ],
-    senderKey: userAddress,
-    validateWithAbi: false,
-    network: getNetwork(),
+    network: NETWORK,
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
     onFinish: (data: any) => {
@@ -79,50 +118,11 @@ export async function voteTerm(termId: number, userAddress: string) {
     contractName: name,
     functionName: 'vote-term',
     functionArgs: [uintCV(termId)],
-    senderKey: userAddress,
-    validateWithAbi: false,
-    network: getNetwork(),
+    network: NETWORK,
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
     onFinish: (data: any) => {
       console.log('Vote transaction:', data.txId);
-      return data;
-    },
-    onCancel: () => {
-      console.log('Transaction cancelled');
-    },
-  };
-  
-  await openContractCall(txOptions);
-}
-
-// ===========================================
-// STAKING CONTRACT FUNCTIONS
-// ===========================================
-
-// Create a new stake
-export async function createStake(
-  amount: number, // in microSTX (1 STX = 1,000,000 microSTX)
-  stakingPlan: 'weekly' | 'biweekly' | 'monthly',
-  userAddress: string
-) {
-  const { address, name } = parseContractId(CONTRACTS.staking);
-  
-  const txOptions = {
-    contractAddress: address,
-    contractName: name,
-    functionName: 'create-stake',
-    functionArgs: [
-      uintCV(amount),
-      stringAsciiCV(stakingPlan),
-    ],
-    senderKey: userAddress,
-    validateWithAbi: false,
-    network: getNetwork(),
-    anchorMode: AnchorMode.Any,
-    postConditionMode: PostConditionMode.Allow,
-    onFinish: (data: any) => {
-      console.log('Create stake transaction:', data.txId);
       return data;
     },
     onCancel: () => {
@@ -149,9 +149,7 @@ export async function markTermLearned(
       uintCV(stakeId),
       uintCV(termId),
     ],
-    senderKey: userAddress,
-    validateWithAbi: false,
-    network: getNetwork(),
+    network: NETWORK,
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
     onFinish: (data: any) => {
@@ -175,9 +173,7 @@ export async function claimStake(stakeId: number, userAddress: string) {
     contractName: name,
     functionName: 'claim-stake',
     functionArgs: [uintCV(stakeId)],
-    senderKey: userAddress,
-    validateWithAbi: false,
-    network: getNetwork(),
+    network: NETWORK,
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
     onFinish: (data: any) => {
@@ -200,7 +196,7 @@ export async function claimStake(stakeId: number, userAddress: string) {
 export async function getTerm(termId: number) {
   try {
     const { address, name } = parseContractId(CONTRACTS.core);
-    const url = `${getNetwork().coreApiUrl}/v2/contracts/call-read/${address}/${name}/get-term`;
+    const url = `${STACKS_API_URL}/v2/contracts/call-read/${address}/${name}/get-term`;
     
     const response = await fetch(url, {
       method: 'POST',
@@ -224,7 +220,7 @@ export async function getTerm(termId: number) {
 export async function getStakeDetails(stakeId: number) {
   try {
     const { address, name } = parseContractId(CONTRACTS.staking);
-    const url = `${getNetwork().coreApiUrl}/v2/contracts/call-read/${address}/${name}/get-stake`;
+    const url = `${STACKS_API_URL}/v2/contracts/call-read/${address}/${name}/get-stake`;
     
     const response = await fetch(url, {
       method: 'POST',
@@ -248,7 +244,7 @@ export async function getStakeDetails(stakeId: number) {
 export async function getUserStakes(userAddress: string) {
   try {
     const { address, name } = parseContractId(CONTRACTS.staking);
-    const url = `${getNetwork().coreApiUrl}/v2/contracts/call-read/${address}/${name}/get-user-stakes`;
+    const url = `${STACKS_API_URL}/v2/contracts/call-read/${address}/${name}/get-user-stakes`;
     
     const response = await fetch(url, {
       method: 'POST',
@@ -272,7 +268,7 @@ export async function getUserStakes(userAddress: string) {
 export async function getStakeProgress(stakeId: number) {
   try {
     const { address, name } = parseContractId(CONTRACTS.staking);
-    const url = `${getNetwork().coreApiUrl}/v2/contracts/call-read/${address}/${name}/get-stake-progress`;
+    const url = `${STACKS_API_URL}/v2/contracts/call-read/${address}/${name}/get-stake-progress`;
     
     const response = await fetch(url, {
       method: 'POST',
@@ -293,7 +289,7 @@ export async function getStakeProgress(stakeId: number) {
 }
 
 // ===========================================
-// ADMIN FUNCTIONS (For Step 2 linking)
+// ADMIN FUNCTIONS
 // ===========================================
 
 // Link staking contract to rewards (Admin only)
@@ -309,9 +305,7 @@ export async function setStakingContract(
     contractName: name,
     functionName: 'set-staking-contract',
     functionArgs: [principalCV(`${stakingAddr}.${stakingName}`)],
-    senderKey: adminAddress,
-    validateWithAbi: false,
-    network: getNetwork(),
+    network: NETWORK,
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
     onFinish: (data: any) => {
