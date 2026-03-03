@@ -91,7 +91,7 @@ export default function DashboardPage() {
                       href="/leaderboard"
                       className="block w-full py-3 bg-gray-100 text-gray-700 text-center rounded-lg font-semibold hover:bg-gray-200 transition-colors"
                     >
-                      View Leaderboard
+                      {/* View Leaderboard */}
                     </a>
                   </div>
                 </div>
