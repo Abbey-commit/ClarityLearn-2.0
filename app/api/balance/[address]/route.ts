@@ -7,11 +7,11 @@ const STACKS_API_URL = process.env.NEXT_PUBLIC_STACKS_API || 'https://api.testne
 
 // In Next.js 15+, params is a Promise and must be awaited
 export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ address: string }> }
+  _request: NextRequest,
+  { params }: { params: Promise<{ address: string }> }
 ) {
   // CRITICAL: await params in Next.js 15+
-  const { address } = await context.params;
+  const { address } = await params;
   
   console.log('📡 API Route: Fetching balance for', address);
   

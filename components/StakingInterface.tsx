@@ -16,7 +16,7 @@ import { formatSTX } from '@/lib/wallet-config';
 type StakingPlan = 'weekly' | 'biweekly' | 'monthly';
 
 export default function StakingInterface() {
-  const { address, balance, isConnected } = useWallet();
+  const { address: _address, balance, isConnected } = useWallet();
   const { createStake, isCreatingStake, error } = useStaking();
   
   const [selectedPlan, setSelectedPlan] = useState<StakingPlan>('weekly');
@@ -248,8 +248,7 @@ export default function StakingInterface() {
               step="0.1"
               min={formatSTX(currentPlan.minAmount)}
               value={stakeAmount}
-              onChange={(e) => setStakeAmount(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none text-lg font-semibold"
+              onChange={(e) => setStakeAmount((e.target as HTMLInputElement).value)}               className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none text-lg font-semibold"
               placeholder="1.0"
             />
             <span className="absolute right-4 top-3 text-gray-500 font-semibold">STX</span>

@@ -6,6 +6,8 @@
 
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WalletStatus from '@/components/WalletStatus';
@@ -16,7 +18,7 @@ import { useLearningProgress } from '@/hooks/useLearningProgress';
 
 export default function DashboardPage() {
   const { isConnected } = useWallet();
-  const { termsCompleted, learnedTerms } = useLearningProgress();
+  const { termsCompleted, learnedTerms: _learnedTerms } = useLearningProgress();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-purple-50">

@@ -6,10 +6,11 @@
 
 'use client';
 
+/* eslint-disable no-alert */
+
 import { useState } from 'react';
 import { Term } from '@/lib/clarity-dictionary';
 import { useLearningProgress } from '@/hooks/useLearningProgress';
-import { markTermLearned } from '@/lib/contract-calls';
 import { useWallet } from '@/hooks/useWallet';
 
 interface LearningSessionProps {
@@ -19,7 +20,7 @@ interface LearningSessionProps {
 }
 
 export default function LearningSession({ term, onClose, onComplete }: LearningSessionProps) {
-  const { address } = useWallet();
+  const { address: _address } = useWallet();
   const { markTermLearned: markLocal, isTermLearned } = useLearningProgress();
   const [showQuiz, setShowQuiz] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -79,8 +80,8 @@ export default function LearningSession({ term, onClose, onComplete }: LearningS
         onComplete();
       }, 2000);
     } else {
-      alert('Incorrect answer. Please try again!');
-      setSelectedAnswer(null);
+        console.log('Incorrect answer. Please try again!');
+        setSelectedAnswer(null);
     }
   };
 

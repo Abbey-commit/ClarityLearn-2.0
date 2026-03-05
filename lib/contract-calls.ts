@@ -3,8 +3,9 @@ import {
   PostConditionMode,
   stringAsciiCV,
   uintCV,
+  cvToHex,
   principalCV,
-  standardPrincipalCV,
+  // standardPrincipalCV,
 } from '@stacks/transactions';
 import { openContractCall } from '@stacks/connect';
 import { CONTRACTS, NETWORK, STACKS_API_URL } from './wallet-config';
@@ -43,7 +44,7 @@ export async function createStake(
       stringAsciiCV(stakingPlan),
     ],
     // CRITICAL: Pass network as simple string for v8 compatibility
-    network: NETWORK,
+    network: NETWORK as 'testnet' | 'mainnet',
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
     appDetails: {
@@ -64,7 +65,7 @@ export async function createStake(
   console.log('🔵 Transaction options:', {
     ...txOptions,
     functionArgs: '[CV values]',
-    network: NETWORK,
+    network: NETWORK as 'testnet' | 'mainnet',
   });
   
   try {
@@ -81,7 +82,7 @@ export async function storeTerm(
   term: string,
   definition: string,
   category: string,
-  userAddress: string
+  _userAddress: string
 ) {
   const { address, name } = parseContractId(CONTRACTS.core);
   
@@ -94,7 +95,7 @@ export async function storeTerm(
       stringAsciiCV(definition),
       stringAsciiCV(category),
     ],
-    network: NETWORK,
+    network: NETWORK as 'testnet' | 'mainnet',
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
     onFinish: (data: any) => {
@@ -110,7 +111,7 @@ export async function storeTerm(
 }
 
 // Vote on a term
-export async function voteTerm(termId: number, userAddress: string) {
+export async function voteTerm(termId: number, _userAddress: string) {
   const { address, name } = parseContractId(CONTRACTS.core);
   
   const txOptions = {
@@ -118,7 +119,7 @@ export async function voteTerm(termId: number, userAddress: string) {
     contractName: name,
     functionName: 'vote-term',
     functionArgs: [uintCV(termId)],
-    network: NETWORK,
+    network: NETWORK as 'testnet' | 'mainnet',
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
     onFinish: (data: any) => {
@@ -137,7 +138,7 @@ export async function voteTerm(termId: number, userAddress: string) {
 export async function markTermLearned(
   stakeId: number,
   termId: number,
-  userAddress: string
+  _userAddress: string
 ) {
   const { address, name } = parseContractId(CONTRACTS.staking);
   
@@ -149,7 +150,7 @@ export async function markTermLearned(
       uintCV(stakeId),
       uintCV(termId),
     ],
-    network: NETWORK,
+    network: NETWORK as 'testnet' | 'mainnet',
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
     onFinish: (data: any) => {
@@ -165,7 +166,7 @@ export async function markTermLearned(
 }
 
 // Claim stake rewards
-export async function claimStake(stakeId: number, userAddress: string) {
+export async function claimStake(stakeId: number, _userAddress: string) {
   const { address, name } = parseContractId(CONTRACTS.staking);
   
   const txOptions = {
@@ -173,7 +174,7 @@ export async function claimStake(stakeId: number, userAddress: string) {
     contractName: name,
     functionName: 'claim-stake',
     functionArgs: [uintCV(stakeId)],
-    network: NETWORK,
+    network: NETWORK as 'testnet' | 'mainnet',
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
     onFinish: (data: any) => {
@@ -203,7 +204,7 @@ export async function getTerm(termId: number) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sender: address,
-        arguments: [uintCV(termId).serialize().toString('hex')],
+        arguments: [cvToHex(uintCV(termId))],
       }),
     });
     
@@ -217,7 +218,7 @@ export async function getTerm(termId: number) {
 }
 
 // Fetch stake details
-export async function getStakeDetails(stakeId: number) {
+export async function getStakeDetails(_stakeId: number) {
   try {
     const { address, name } = parseContractId(CONTRACTS.staking);
     const url = `${STACKS_API_URL}/v2/contracts/call-read/${address}/${name}/get-stake`;
@@ -227,7 +228,7 @@ export async function getStakeDetails(stakeId: number) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sender: address,
-        arguments: [uintCV(stakeId).serialize().toString('hex')],
+        arguments: [cvToHex(uintCV(_stakeId))],
       }),
     });
     
@@ -251,7 +252,7 @@ export async function getUserStakes(userAddress: string) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sender: userAddress,
-        arguments: [standardPrincipalCV(userAddress).serialize().toString('hex')],
+        arguments: [cvToHex(uintCV(userAddress))],
       }),
     });
     
@@ -275,7 +276,7 @@ export async function getStakeProgress(stakeId: number) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sender: address,
-        arguments: [uintCV(stakeId).serialize().toString('hex')],
+        arguments: [cvToHex(uintCV(stakeId))],
       }),
     });
     
@@ -295,7 +296,7 @@ export async function getStakeProgress(stakeId: number) {
 // Link staking contract to rewards (Admin only)
 export async function setStakingContract(
   stakingContractAddress: string,
-  adminAddress: string
+  _adminAddress: string
 ) {
   const { address, name } = parseContractId(CONTRACTS.rewards);
   const { address: stakingAddr, name: stakingName } = parseContractId(stakingContractAddress);
@@ -305,7 +306,7 @@ export async function setStakingContract(
     contractName: name,
     functionName: 'set-staking-contract',
     functionArgs: [principalCV(`${stakingAddr}.${stakingName}`)],
-    network: NETWORK,
+    network: NETWORK as 'testnet' | 'mainnet',
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
     onFinish: (data: any) => {
