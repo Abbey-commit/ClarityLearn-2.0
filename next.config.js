@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  turbopack: {},
+  // removed turbopack line 
   output: 'standalone',
   images: {
     unoptimized: false,
@@ -12,16 +12,7 @@ const nextConfig = {
   },
   basePath: '',
   trailingSlash: true,
-  // REMOVE turbopack line if it exists
-  webpack: (config) => {
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      tls: false,
-    };
-    return config;
-  },
+  // removed webpack config
 };
 
 module.exports = nextConfig;
