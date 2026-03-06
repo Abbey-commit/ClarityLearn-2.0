@@ -4,7 +4,8 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": [
-      "ESNext", "DOM"
+      "ESNext",
+      "DOM"
     ],
     "skipLibCheck": true,
     "moduleResolution": "bundler",
@@ -20,15 +21,17 @@
     "allowJs": true,
     "incremental": true,
     "esModuleInterop": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@/*": ["./*"]
-    }    
+      "@/*": [
+        "./*"
+      ]
+    }
   },
   "include": [
     "node_modules/@hirosystems/clarinet-sdk/vitest-helpers/src",
