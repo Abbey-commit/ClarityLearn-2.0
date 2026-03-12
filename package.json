@@ -1,5 +1,5 @@
 {
-  "name": "ClarityLearn-2.0-tests",
+  "name": "claritylearn-2.0",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -7,34 +7,31 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:unit": "vitest run tests/unit",
-    "dev": "next dev --turbo",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "export": "next build && next export",
-    "deploy:test": "npm run build && echo 'Ready for Stacks Ascent deployment'",
-    "deploy:prod": "npm run build && echo 'Production build complete'",
-    "@stacks/network": "2.2.4"
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@stacks/connect": "8.2.3",
+    "@stacks/network": "7.2.0",
+    "@stacks/transactions": "6.17.0",
+    "next": "14.2.20",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwindcss": "3.4.1"
   },
   "devDependencies": {
     "@hirosystems/clarinet-sdk": "^2.8.0",
     "@playwright/test": "^1.57.0",
-    "@stacks/transactions": "^6.17.0",
-    "@types/node": "^24.10.1",
-    "@types/react": "^19.2.7",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
     "autoprefixer": "^10.4.22",
     "postcss": "^8.5.6",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
+    "typescript": "^5",
     "vitest": "^4.0.12",
     "vitest-environment-clarinet": "^2.0.0"
-  },
-  "dependencies": {
-    "@stacks/connect": "^8.2.3",
-    "@stacks/network": "^7.2.0",
-    "next": "15.2.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "tailwindcss": "^3.4.1"
   }
 }
