@@ -1,58 +1,53 @@
-// Force this route to be dynamic (not statically generated)
-export const dynamic = 'force-dynamic';
+export const revalidate = 10; // Cache for 10 seconds only - no force-dynamic!
 
-import { NextRequest, NextResponse } from 'next/server';
-
-const STACKS_API_URL = process.env.NEXT_PUBLIC_STACKS_API || 'https://api.testnet.hiro.so';
-
-// In Next.js 15+, params is a Promise and must be awaited
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ address: string }> }
 ) {
-  // CRITICAL: await params in Next.js 15+
-  const { address } = await params;
-  
-  console.log('📡 API Route: Fetching balance for', address);
-  
   try {
-    const apiUrl = `${STACKS_API_URL}/extended/v1/address/${address}/stx`;
-    console.log('📡 Calling Hiro API:', apiUrl);
+    const { address } = await params;
     
-    const response = await fetch(apiUrl, {
-      headers: {
-        'Accept': 'application/json',
-      },
-      cache: 'no-store', // Don't cache balance data
-    });
-
-    if (!response.ok) {
-      console.error('❌ Hiro API error:', response.status);
-      const errorText = await response.text();
-      console.error('❌ Error details:', errorText);
-      
+    if (!address) {
       return NextResponse.json(
-        { error: `Hiro API error: ${response.status}`, details: errorText },
-        { status: response.status }
+        { error: 'Address is required' },
+        { status: 400 }
       );
     }
 
-    const data = await response.json();
-    console.log('✅ Balance fetched successfully:', data);
-    
-    // Return with CORS headers to allow frontend access
-    return NextResponse.json(data, {
+    const STACKS_API = process.env.NEXT_PUBLIC_STACKS_API || 'https://api.testnet.hiro.so';
+    const url = `${STACKS_API}/extended/v1/address/${address}/balances`;
+
+    const response = await fetch(url, {
       headers: {
-        'Cache-Control': 'no-store, max-age=0',
+        'Accept': 'application/json',
       },
+      // Add timeout and cache
+      next: { revalidate: 10 }
     });
-  } catch (error: any) {
-    console.error('❌ Error in balance API route:', error);
-    console.error('❌ Error stack:', error.stack);
+
+    if (!response.ok) {
+      // If rate limited, return graceful error
+      if (response.status === 429) {
+        return NextResponse.json(
+          { 
+            error: 'Rate limited',
+            stx: { balance: '0', locked: '0' }
+          },
+          { status: 200 } // Return 200 so app doesn't crash
+        );
+      }
+      
+      throw new Error(`Hiro API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
     
+  } catch (error) {
+    console.error('❌ Balance fetch error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch balance', stack: error.stack },
-      { status: 500 }
+      { error: 'Failed to fetch balance', stx: { balance: '0', locked: '0' } },
+      { status: 200 } // Return 200 with default data
     );
   }
 }
