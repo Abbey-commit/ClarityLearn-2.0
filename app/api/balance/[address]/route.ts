@@ -1,3 +1,5 @@
+import { NextRequest, NextResponse } from 'next/server';
+
 export const revalidate = 10; // Cache for 10 seconds only - no force-dynamic!
 
 export async function GET(

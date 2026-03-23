@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 export const useBalance = (address: string) => {
   const [balance, setBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!address) {
@@ -54,5 +53,5 @@ export const useBalance = (address: string) => {
     };
   }, [address]);
 
-  return { balance, isLoading, error };
+  return { balance, isLoading };
 };
