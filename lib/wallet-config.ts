@@ -1,5 +1,13 @@
 import { connect, disconnect } from '@stacks/connect';
 
+const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+};
+
+
 // Network configuration based on environment
 export const NETWORK = process.env.NEXT_PUBLIC_NETWORK || 'testnet';
 export const STACKS_API_URL = process.env.NEXT_PUBLIC_STACKS_API || 'https://api.testnet.hiro.so';
@@ -74,6 +82,30 @@ export const connectWallet = async (onFinish: (userData: any) => void, onCancel?
     console.log('🔵 Initiating wallet connection...');
     console.log('🔵 Network:', NETWORK);
     console.log('🔵 API URL:', STACKS_API_URL);
+    console.log('🔵 Is Mobile:', isMobile());
+    
+    // On mobile, guide users to install mobile wallet app
+    if (isMobile()) {
+      const userConfirmed = window.confirm(
+        'Mobile wallet connection requires the Xverse mobile app.\n\n' +
+        'Do you have Xverse installed?\n\n' +
+        'YES = Continue to connect\n' +
+        'NO = Get installation instructions'
+      );
+      
+      if (!userConfirmed) {
+        // Show installation instructions
+        alert(
+          'To use ClarityLearn on mobile:\n\n' +
+          '1. Download Xverse app from App Store or Google Play\n' +
+          '2. Create wallet and switch to testnet\n' +
+          '3. Open ClarityLearn in Xverse\'s built-in browser\n\n' +
+          'Or use desktop browser with Leather extension'
+        );
+        if (onCancel) onCancel();
+        return;
+      }
+    }
     
     // NEW v8 API: connect() returns addresses directly
     const response = await connect();
@@ -110,6 +142,17 @@ export const connectWallet = async (onFinish: (userData: any) => void, onCancel?
     }
   } catch (error) {
     console.error('❌ Connection error:', error);
+    
+    if (isMobile()) {
+      alert(
+        'Connection failed!\n\n' +
+        'For mobile:\n' +
+        '1. Download Xverse mobile app\n' +
+        '2. Open ClarityLearn inside the Xverse app browser\n\n' +
+        'Or use desktop browser instead'
+      );
+    }
+    
     if (onCancel) onCancel();
   }
 };
