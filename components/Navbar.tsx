@@ -7,7 +7,6 @@
 'use client';
 
 import Link from 'next/link';
-import WalletConnect from './WalletConnect';
 import { useWallet } from '@/hooks/useWallet';
 import { shortenAddress } from '@/lib/wallet-config';
 import { useEffect, useState } from 'react';
